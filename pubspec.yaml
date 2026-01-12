@@ -1,0 +1,59 @@
+name: nyaya_mithra
+description: "AI-powered legal and civic assistance platform"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  
+  # Camera and Image
+  camera: ^0.11.0+2
+  image_picker: ^1.1.2
+  
+  # AI Integration
+  google_generative_ai: ^0.4.6
+  
+  # Permissions
+  permission_handler: ^11.3.1
+  
+  # UI Enhancements
+  flutter_animate: ^4.5.2
+  shimmer: ^3.0.0
+  glass_kit: ^4.0.1
+  flutter_staggered_animations: ^1.1.1
+  lottie: ^3.3.1
+  
+  # State Management
+  provider: ^6.1.2
+  
+  # Storage
+  shared_preferences: ^2.3.4
+  path_provider: ^2.1.5
+  
+  # Utils
+  flutter_dotenv: ^5.2.1
+  path: ^1.9.1
+  google_fonts: ^6.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/
+    - assets/images/
+    - assets/animations/
+    - .env
+    
+
