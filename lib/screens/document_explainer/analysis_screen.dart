@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,12 +11,12 @@ import '../../widgets/gradient_button.dart';
 import '../../widgets/glass_container.dart';
 
 class AnalysisScreen extends StatefulWidget {
-  final Uint8List imageBytes;
+  final File imageFile;
   final String language;
 
   const AnalysisScreen({
     super.key,
-    required this.imageBytes,
+    required this.imageFile,
     required this.language,
   });
 
@@ -48,8 +49,9 @@ class _AnalysisScreenState extends State<AnalysisScreen>
 
   Future<void> _analyzeDocument() async {
     try {
+      final imageBytes = await widget.imageFile.readAsBytes();
       final result = await GeminiService.instance.analyzeDocumentRaw(
-        widget.imageBytes,
+        imageBytes,
         widget.language,
       );
 
@@ -379,7 +381,7 @@ class _AnalysisScreenState extends State<AnalysisScreen>
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(18),
-                  child: Image.memory(widget.imageBytes, fit: BoxFit.cover),
+                  child: Image.file(widget.imageFile, fit: BoxFit.cover, cacheHeight: 450),
                 ),
               )
               .animate()

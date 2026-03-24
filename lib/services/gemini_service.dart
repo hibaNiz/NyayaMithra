@@ -111,6 +111,8 @@ RULES:
         },
       ];
 
+      print("[DOCUMENT]");
+
       return await _callApi(messages, maxTokens: 4096);
     } catch (e) {
       throw Exception('Failed to analyze document: $e');

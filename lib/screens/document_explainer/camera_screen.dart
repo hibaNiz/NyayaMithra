@@ -151,14 +151,13 @@ class _CameraScreenState extends State<CameraScreen>
     if (_capturedImage == null) return;
 
     final provider = context.read<AppProvider>();
-    final Uint8List imageBytes = await _capturedImage!.readAsBytes();
 
     if (mounted) {
       Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               AnalysisScreen(
-                imageBytes: imageBytes,
+                imageFile: _capturedImage!,
                 language: provider.selectedLanguage,
               ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
