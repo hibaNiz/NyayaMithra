@@ -50,7 +50,7 @@ class HomeScreen extends StatelessWidget {
                                       AppTheme.secondaryColor.withOpacity(0.8),
                                     ],
                                   ),
-                                  borderRadius: BorderRadius.circular(14),
+                                  shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
                                       color: AppTheme.secondaryColor
@@ -60,11 +60,14 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.balance_rounded,
-                                    color: Colors.white,
-                                    size: 26,
+                                child: Center(
+                                  child: ClipOval(
+                                    child: Image.asset(
+                                      'assets/images/img.jpg',
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               )

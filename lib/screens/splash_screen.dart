@@ -174,7 +174,7 @@ class _SplashScreenState extends State<SplashScreen>
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
-                                  borderRadius: BorderRadius.circular(35),
+                                  shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
                                       color: AppTheme.accentColor.withValues(
@@ -186,11 +186,14 @@ class _SplashScreenState extends State<SplashScreen>
                                     ),
                                   ],
                                 ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.balance_rounded,
-                                    size: 75,
-                                    color: Colors.white,
+                                child: Center(
+                                  child: ClipOval(
+                                    child: Image.asset(
+                                      'assets/images/img.jpg',
+                                      width: 150,
+                                      height: 150,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               )
