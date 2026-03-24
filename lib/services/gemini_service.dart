@@ -1,34 +1,27 @@
+import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import '../models/analysis_result.dart';
 
 class GeminiService {
   static GeminiService? _instance;
-  late final GenerativeModel _model;
+  final Dio _dio = Dio();
 
-  GeminiService._() {
-    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
-    if (apiKey.isEmpty) {
-      throw Exception('GEMINI_API_KEY not found in environment');
-    }
+  static const String _invokeUrl =
+      "https://integrate.api.nvidia.com/v1/chat/completions";
+  static const String _model = "qwen/qwen3.5-122b-a10b";
 
-    _model = GenerativeModel(
-      model: 'gemini-3-flash-preview',
-      apiKey: apiKey,
-      generationConfig: GenerationConfig(
-        temperature: 0.4,
-        topK: 32,
-        topP: 0.9,
-        maxOutputTokens: 4096,
-      ),
-    );
-  }
+  GeminiService._();
 
   static GeminiService get instance {
     _instance ??= GeminiService._();
     return _instance!;
   }
+
+  String get _apiKey =>
+      dotenv.env['NVDA_API_KEY'] ??
+      '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';
 
   String _getSystemPrompt(String language) {
     final languageName = language == 'ml' ? 'Malayalam' : 'English';
@@ -87,15 +80,7 @@ RULES:
     String language,
   ) async {
     try {
-      final prompt = _getSystemPrompt(language);
-
-      final content = [
-        Content.multi([TextPart(prompt), DataPart('image/jpeg', imageBytes)]),
-      ];
-
-      final response = await _model.generateContent(content);
-      final responseText = response.text ?? 'Unable to analyze the document.';
-
+      final responseText = await analyzeDocumentRaw(imageBytes, language);
       return AnalysisResult.fromRawResponse(responseText, language);
     } catch (e) {
       throw Exception('Failed to analyze document: $e');
@@ -107,14 +92,26 @@ RULES:
     String language,
   ) async {
     try {
-      final prompt = _getSystemPrompt(language);
+      if (_apiKey.isEmpty)
+        throw Exception('NVDA_API_KEY not found in environment');
 
-      final content = [
-        Content.multi([TextPart(prompt), DataPart('image/jpeg', imageBytes)]),
+      final base64Image = base64Encode(imageBytes);
+      final imageDataUrl = "data:image/jpeg;base64,$base64Image";
+
+      final messages = [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "image_url",
+              "image_url": {"url": imageDataUrl},
+            },
+            {"type": "text", "text": _getSystemPrompt(language)},
+          ],
+        },
       ];
 
-      final response = await _model.generateContent(content);
-      return response.text ?? 'Unable to analyze the document.';
+      return await _callApi(messages, maxTokens: 4096);
     } catch (e) {
       throw Exception('Failed to analyze document: $e');
     }
@@ -125,15 +122,52 @@ RULES:
     String language,
   ) async {
     try {
-      final prompt = _getCivicAssistancePrompt(language);
+      if (_apiKey.isEmpty)
+        throw Exception('NVDA_API_KEY not found in environment');
 
-      final content = [Content.text('$prompt\n\nUser Query: $userMessage')];
+      final messages = [
+        {"role": "system", "content": _getCivicAssistancePrompt(language)},
+        {"role": "user", "content": userMessage},
+      ];
 
-      final response = await _model.generateContent(content);
-      return response.text ?? 'I apologize, I couldn\'t generate a response.';
+      return await _callApi(messages, maxTokens: 2048);
     } catch (e) {
       throw Exception('Failed to get civic assistance response: $e');
     }
+  }
+
+  Future<String> _callApi(
+    List<Map<String, dynamic>> messages, {
+    int maxTokens = 1024,
+  }) async {
+    final payload = {
+      "model": _model,
+      "messages": messages,
+      "max_tokens": maxTokens,
+      "temperature": 0.40,
+      "top_p": 0.95,
+      "stream": false,
+      "chat_template_kwargs": {"enable_thinking": false},
+    };
+
+    final response = await _dio.post(
+      _invokeUrl,
+      options: Options(
+        headers: {
+          "Authorization": "Bearer $_apiKey",
+          "Accept": "application/json",
+        },
+        sendTimeout: const Duration(seconds: 90),
+        receiveTimeout: const Duration(seconds: 90),
+      ),
+      data: payload,
+    );
+
+    if (response.statusCode == 200) {
+      return response.data['choices'][0]['message']['content'] as String;
+    }
+
+    return 'Unable to generate response from NVIDIA integration.';
   }
 
   String _getCivicAssistancePrompt(String language) {

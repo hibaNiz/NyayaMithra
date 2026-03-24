@@ -7,7 +7,8 @@ import '../widgets/feature_card.dart';
 import '../widgets/language_selector.dart';
 import 'civic_assistance_screen.dart';
 import 'document_explainer/camera_screen.dart';
-
+import 'document_maker_screen.dart';
+import 'grievance_portal_screen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -282,7 +283,24 @@ class HomeScreen extends StatelessWidget {
                       description: provider.getString('document_maker_desc'),
                       icon: Icons.edit_document,
                       gradientColors: AppTheme.featureGradients[1],
-                      isEnabled: false,
+                      isEnabled: true,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => const DocumentMakerScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(1, 0),
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+                                child: child,
+                              );
+                            },
+                            transitionDuration: const Duration(milliseconds: 400),
+                          ),
+                        );
+                      },
                       animationDelay: 700,
                     ),
 
@@ -292,7 +310,24 @@ class HomeScreen extends StatelessWidget {
                       description: provider.getString('grievance_portal_desc'),
                       icon: Icons.report_problem_rounded,
                       gradientColors: AppTheme.featureGradients[3],
-                      isEnabled: false,
+                      isEnabled: true,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => const GrievancePortalScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(1, 0),
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+                                child: child,
+                              );
+                            },
+                            transitionDuration: const Duration(milliseconds: 400),
+                          ),
+                        );
+                      },
                       animationDelay: 800,
                     ),
                   ]),
