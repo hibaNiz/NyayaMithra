@@ -1,4 +1,4 @@
-# NyayaMithra (न्यायमित्र)
+# NyayaMithra
 
 **Empowering Citizens through AI-Powered Legal & Civic Assistance**
 
