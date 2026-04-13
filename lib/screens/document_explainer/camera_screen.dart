@@ -76,7 +76,7 @@ class _CameraScreenState extends State<CameraScreen>
 
       _cameraController = CameraController(
         _cameras!.first,
-        ResolutionPreset.high,
+        ResolutionPreset.medium, // Reduced to prevent extremely massive Base64 payloads timing out the connection!
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.jpeg,
       );
@@ -108,6 +108,7 @@ class _CameraScreenState extends State<CameraScreen>
 
     try {
       final XFile image = await _cameraController!.takePicture();
+      try { await _cameraController!.pausePreview(); } catch (_) {}
       setState(() {
         _capturedImage = File(image.path);
         _isCapturing = false;
@@ -130,6 +131,7 @@ class _CameraScreenState extends State<CameraScreen>
       );
 
       if (image != null) {
+        try { if (_cameraController != null) await _cameraController!.pausePreview(); } catch (_) {}
         setState(() {
           _capturedImage = File(image.path);
         });
@@ -141,10 +143,15 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
 
-  void _retakeImage() {
+  Future<void> _retakeImage() async {
     setState(() {
       _capturedImage = null;
     });
+    try { 
+      if (_cameraController != null && _cameraController!.value.isInitialized) {
+        await _cameraController!.resumePreview(); 
+      }
+    } catch (_) {}
   }
 
   Future<void> _analyzeDocument() async {
@@ -359,141 +366,66 @@ class _CameraScreenState extends State<CameraScreen>
       );
     }
 
-    if (_capturedImage != null) {
-      return Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: AppTheme.accentColor.withOpacity(0.5),
-            width: 3,
-          ),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(21),
-          child: Image.file(
-            _capturedImage!,
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-        ),
-      );
-    }
-
-    if (!_isCameraInitialized) {
-      return Container(
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceColor,
-          borderRadius: BorderRadius.circular(28),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppTheme.secondaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppTheme.secondaryColor,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Initializing camera...',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 40),
-              // Quick tips while loading
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 32),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.tips_and_updates_rounded,
-                          color: AppTheme.accentColor,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        const Text(
-                          'Quick Tips',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildTipItem('Ensure good lighting'),
-                    _buildTipItem('Keep document flat'),
-                    _buildTipItem('Avoid shadows on text'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Camera Preview
-        CameraPreview(_cameraController!),
+        // Always keep CameraPreview in the tree to prevent SurfaceView buffer crash
+        if (_cameraController != null && _cameraController!.value.isInitialized)
+          CameraPreview(_cameraController!),
 
-        // Document Guide Overlay
-        CustomPaint(size: Size.infinite, painter: DocumentGuidePainter()),
+        if (_capturedImage == null) ...[
+          // Document Guide Overlay
+          CustomPaint(size: Size.infinite, painter: DocumentGuidePainter()),
 
-        // Instructions
-        Positioned(
-          bottom: 20,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.document_scanner_rounded,
-                  color: AppTheme.accentColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Align document within the frame',
-                  style: TextStyle(color: Colors.white, fontSize: 13),
-                ),
-              ],
+          // Instructions
+          Positioned(
+            bottom: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.document_scanner_rounded,
+                    color: AppTheme.accentColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Align document within the frame',
+                    style: TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+        ],
+
+        // Captured Image Overlay
+        if (_capturedImage != null)
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceColor,
+              border: Border.all(
+                color: AppTheme.accentColor.withOpacity(0.5),
+                width: 3,
+              ),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(21),
+              child: Image.file(
+                _capturedImage!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+          ),
       ],
     );
   }
