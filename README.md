@@ -1,4 +1,4 @@
-# ⚖️ NyayaMithra (न्यायमित्र)
+# NyayaMithra (न्यायमित्र)
 
 **Empowering Citizens through AI-Powered Legal & Civic Assistance**
 
@@ -6,30 +6,30 @@ NyayaMithra is a comprehensive mobile platform designed to bridge the gap betwee
 
 ---
 
-## ✨ Core Features
+## Core Features
 
-### 📄 Document Explainer (AI-Powered)
+### Document Explainer (AI-Powered)
 - **Instant Analysis:** Upload or scan complex legal documents (PDFs/Images).
 - **Simplification:** AI breaks down legalese into plain, understandable language.
 - **Key Information Extraction:** Automatically identifies critical dates, obligations, and parties involved.
 
-### ✍️ Legal Document Maker
+### Legal Document Maker
 - **Smart Templates:** Generate legally sound documents (Affidavits, Rental Agreements, Notices) in minutes.
 - **Digital Signatures:** Integrated signature pad for immediate verification.
 - **Export to PDF:** Professional-grade PDF generation ready for printing or storage.
 
-### 🏛️ Civic Assistance & Grievance Portal
+### Civic Assistance & Grievance Portal
 - **Right to Know:** Easy access to information regarding civic rights and government schemes.
 - **Automated Complaints:** AI-assisted complaint drafting for various departments.
 - **Location Awareness:** Automatic detection of jurisdiction for precise grievance reporting.
 
-### 🤖 Intelligent Assistant
+### Intelligent Assistant
 - **Bilingual Support:** Designed with the Indian context in mind, supporting local languages.
 - **Guided Workflows:** Step-by-step assistance for common legal and civic procedures.
 
 ---
 
-## 🚀 Technology Stack
+## Technology Stack
 
 ### **Frontend & UI**
 - **Framework:** [Flutter](https://flutter.dev/) (Dart)
@@ -51,7 +51,7 @@ NyayaMithra is a comprehensive mobile platform designed to bridge the gap betwee
 
 ---
 
-## 🛠️ Setup & Installation
+## Setup & Installation
 
 ### **Prerequisites**
 - Flutter SDK (Latest Stable)
@@ -83,7 +83,7 @@ NyayaMithra is a comprehensive mobile platform designed to bridge the gap betwee
 
 ---
 
-## 🧠 AI Fine-tuning (Developer Preview)
+## AI Fine-tuning (Developer Preview)
 
 The project includes a specialized training script `train_qwen_lora.py` to adapt the **Qwen 3.5-7B** model for the Indian legal ecosystem.
 
@@ -94,15 +94,10 @@ The project includes a specialized training script `train_qwen_lora.py` to adapt
 
 ---
 
-## 📜 Roadmap
+## Roadmap
 - [ ] Multilingual Voice Assistant integration.
 - [ ] Integration with Government API portals for live tracking.
 - [ ] Blockchain-based document store for tamper-proof records.
-
----
-
-## 👥 Contributors
-- **Hiba Nizar** - *Lead Developer & Architect*
 
 ---
 
